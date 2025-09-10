@@ -19,7 +19,7 @@ repositories {
 }
 
 
-val modVersion = "0.1.0"
+val modVersion = "0.1.1"
 val releaseVersion = "${modVersion}+${libs.versions.minecraft.get()}"
 version = releaseVersion
 group = "me.senseiwells"
@@ -84,6 +84,9 @@ tasks {
             }
             requires {
                 id = "Ha28R6CL"
+            }
+            optional {
+                id = "Vebnzrzj"
             }
         }
     }
