@@ -17,7 +17,6 @@ import net.casual.arcade.dimensions.level.vanilla.VanillaDimension
 import net.casual.arcade.dimensions.level.vanilla.VanillaLikeLevelsBuilder
 import net.casual.arcade.dimensions.utils.addCustomLevel
 import net.casual.arcade.dimensions.utils.deleteCustomLevel
-import net.casual.arcade.dimensions.utils.impl.VoidChunkGenerator
 import net.casual.arcade.utils.component.*
 import net.casual.arcade.utils.math.location.LocationWithLevel.Companion.asLocation
 import net.casual.arcade.utils.teleportTo
@@ -31,7 +30,6 @@ import net.minecraft.commands.arguments.coordinates.Vec2Argument
 import net.minecraft.commands.arguments.coordinates.Vec3Argument
 import net.minecraft.core.registries.Registries
 import net.minecraft.network.chat.Component
-import net.minecraft.world.level.dimension.DimensionType
 import net.minecraft.world.level.dimension.LevelStem
 import net.minecraft.world.level.levelgen.FlatLevelSource
 import net.minecraft.world.phys.Vec2
@@ -130,34 +128,6 @@ object MultiverseCommand: CommandTree {
         }
         return context.source.success(message)
     }
-
-    // private fun createVoidDimension(
-    //     context: CommandContext<CommandSourceStack>,
-    //     hasCustomGamerules: Boolean = BoolArgumentType.getBool(context, "has-custom-gamerules")
-    // ): Int {
-    //     val server = context.source.server
-    //     val dimensionType = RegistryElementArgument.getHolder<DimensionType>(context, "dimension-type")
-    //     val dimension = ResourceLocationArgument.getId(context, "dimension").toKey(Registries.DIMENSION)
-    //     if (server.levelKeys().contains(dimension)) {
-    //         throw DIMENSION_ALREADY_EXISTS.create(dimension.location())
-    //     }
-    //
-    //     server.addCustomLevel {
-    //         dimensionKey(dimension)
-    //         dimensionType(dimensionType)
-    //         chunkGenerator(VoidChunkGenerator(server))
-    //         persistence(LevelPersistence.Persistent)
-    //         if (hasCustomGamerules) {
-    //             gameRules { }
-    //         }
-    //     }
-    //     val id = dimension.location()
-    //     val message = Component {
-    //         literal("Successfully created custom void dimension $id") + nl +
-    //             literal("[Click to teleport]").suggestCommand("/multiverse tp $id ~ ~ ~").yellow()
-    //     }
-    //     return context.source.success(message)
-    // }
 
     private fun createVanillaDimensions(
         context: CommandContext<CommandSourceStack>,
