@@ -28,6 +28,7 @@ import net.minecraft.commands.arguments.DimensionArgument
 import net.minecraft.commands.arguments.ResourceLocationArgument
 import net.minecraft.commands.arguments.coordinates.Vec2Argument
 import net.minecraft.commands.arguments.coordinates.Vec3Argument
+import net.minecraft.core.Holder
 import net.minecraft.core.registries.Registries
 import net.minecraft.network.chat.Component
 import net.minecraft.world.level.dimension.LevelStem
@@ -35,6 +36,7 @@ import net.minecraft.world.level.levelgen.FlatLevelSource
 import net.minecraft.world.phys.Vec2
 import net.minecraft.world.phys.Vec3
 import java.util.concurrent.CompletableFuture
+import kotlin.jvm.optionals.getOrNull
 
 object MultiverseCommand: CommandTree {
     private val DIMENSION_ALREADY_EXISTS = DynamicCommandExceptionType { dim ->
@@ -82,7 +84,7 @@ object MultiverseCommand: CommandTree {
                     executes(::deleteCustomDimension)
                 }
             }
-            literal("tp") {
+            literal("teleport") {
                 requires { Permissions.check(it, "multiverse.commands.multiverse.tp", 2) }
                 argument("dimension", DimensionArgument.dimension()) {
                     executes { teleportToCustomDimension(it, it.source.position, it.source.rotation) }
@@ -103,7 +105,7 @@ object MultiverseCommand: CommandTree {
         hasCustomGamerules: Boolean = BoolArgumentType.getBool(context, "has-custom-gamerules")
     ): Int {
         val server = context.source.server
-        val stem = RegistryElementArgument.getHolder<LevelStem>(context, "stem")
+        val stem = this.getStemHolder(context, "stem")
         val dimension = ResourceLocationArgument.getId(context, "dimension").toKey(Registries.DIMENSION)
         if (server.levelKeys().contains(dimension)) {
             throw DIMENSION_ALREADY_EXISTS.create(dimension.location())
@@ -124,7 +126,7 @@ object MultiverseCommand: CommandTree {
         val id = dimension.location()
         val message = Component {
             literal("Successfully created custom dimension $id") + nl +
-                literal("[Click to teleport]").suggestCommand("/multiverse tp $id ~ ~ ~").yellow()
+                literal("[Click to teleport]").suggestCommand("/multiverse teleport $id ~ ~ ~").yellow()
         }
         return context.source.success(message)
     }
@@ -160,7 +162,7 @@ object MultiverseCommand: CommandTree {
 
         val message = Component {
             literal("Successfully created custom dimensions") + nl + keys.joinToComponent(nl) { (dim, key) ->
-                val command = "/multiverse tp ${key.location()} ~ ~ ~"
+                val command = "/multiverse teleport ${key.location()} ~ ~ ~"
                 Component.literal("[Click to teleport to $dim]").suggestCommand(command).yellow()
             }
         }
@@ -198,5 +200,18 @@ object MultiverseCommand: CommandTree {
         val dimensions = context.source.server.allLevels.filterIsInstance<CustomLevel>()
             .map { level -> level.dimension().location() }
         return SharedSuggestionProvider.suggestResource(dimensions, builder)
+    }
+
+    @Suppress("SameParameterValue")
+    private fun getStemHolder(context: CommandContext<CommandSourceStack>, name: String): Holder<LevelStem> {
+        // What we're essentially doing here is replacing the holder from the multiverse
+        // registries to a holder from the vanilla registries.
+        // We get reference holders to those who exist in the vanilla registries
+        // and provide direct holders for those which are not.
+        val stem = RegistryElementArgument.getHolder<LevelStem>(context, name)
+        val access = context.source.registryAccess()
+        val stems = access.lookupOrThrow(Registries.LEVEL_STEM)
+        val key = stems.getResourceKey(stem.value()).getOrNull() ?: return Holder.direct(stem.value())
+        return stems.getOrThrow(key)
     }
 }
