@@ -6,7 +6,9 @@ import com.mojang.brigadier.context.CommandContext
 import com.mojang.brigadier.exceptions.DynamicCommandExceptionType
 import com.mojang.brigadier.suggestion.Suggestions
 import com.mojang.brigadier.suggestion.SuggestionsBuilder
+import kotlinx.io.IOException
 import me.lucko.fabric.api.permissions.v0.Permissions
+import me.senseiwells.multiverse.Multiverse
 import me.senseiwells.multiverse.commands.argument.SeedArgument
 import me.senseiwells.multiverse.utils.MultiverseRegistries
 import net.casual.arcade.commands.*
@@ -17,9 +19,11 @@ import net.casual.arcade.dimensions.level.vanilla.VanillaDimension
 import net.casual.arcade.dimensions.level.vanilla.VanillaLikeLevelsBuilder
 import net.casual.arcade.dimensions.utils.addCustomLevel
 import net.casual.arcade.dimensions.utils.deleteCustomLevel
+import net.casual.arcade.dimensions.utils.getDimensionPath
 import net.casual.arcade.utils.component.*
 import net.casual.arcade.utils.math.location.LocationWithLevel.Companion.asLocation
 import net.casual.arcade.utils.teleportTo
+import net.casual.arcade.utils.toIdString
 import net.casual.arcade.utils.toKey
 import net.minecraft.commands.CommandBuildContext
 import net.minecraft.commands.CommandSourceStack
@@ -36,6 +40,10 @@ import net.minecraft.world.level.levelgen.FlatLevelSource
 import net.minecraft.world.phys.Vec2
 import net.minecraft.world.phys.Vec3
 import java.util.concurrent.CompletableFuture
+import kotlin.io.path.ExperimentalPathApi
+import kotlin.io.path.copyToRecursively
+import kotlin.io.path.createParentDirectories
+import kotlin.io.path.exists
 import kotlin.jvm.optionals.getOrNull
 
 object MultiverseCommand: CommandTree {
@@ -74,6 +82,14 @@ object MultiverseCommand: CommandTree {
                                 }
                             }
                         }
+                    }
+                }
+            }
+            literal("clone") {
+                requires { Permissions.check(it, "multiverse.commands.multiverse.clone", 2) }
+                argument("from", DimensionArgument.dimension()) {
+                    argument("to", ResourceLocationArgument.id()) {
+                        executes(::cloneDimension)
                     }
                 }
             }
@@ -123,7 +139,7 @@ object MultiverseCommand: CommandTree {
                 flat(true)
             }
         }
-        val id = dimension.location()
+        val id = dimension.toIdString()
         val message = Component {
             literal("Successfully created custom dimension $id") + nl +
                 literal("[Click to teleport]").suggestCommand("/multiverse teleport $id ~ ~ ~").yellow()
@@ -165,6 +181,51 @@ object MultiverseCommand: CommandTree {
                 val command = "/multiverse teleport ${key.location()} ~ ~ ~"
                 Component.literal("[Click to teleport to $dim]").suggestCommand(command).yellow()
             }
+        }
+        return context.source.success(message)
+    }
+
+    private fun cloneDimension(context: CommandContext<CommandSourceStack>): Int {
+        val level = DimensionArgument.getDimension(context, "from")
+        val destination = ResourceLocationArgument.getId(context, "to").toKey(Registries.DIMENSION)
+
+        val server = context.source.server
+        if (server.levelKeys().contains(destination)) {
+            throw DIMENSION_ALREADY_EXISTS.create(destination.location())
+        }
+
+        val from = server.getDimensionPath(level.dimension())
+        val to = server.getDimensionPath(destination)
+
+        val directoriesToCopy = listOf("data", "entities", "poi", "region")
+        @OptIn(ExperimentalPathApi::class)
+        try {
+            for (directory in directoriesToCopy) {
+                val source = from.resolve(directory)
+                if (source.exists()) {
+                    val dest = to.resolve(directory).createParentDirectories()
+                    source.copyToRecursively(dest, followLinks = true, overwrite = true)
+                }
+            }
+        } catch (e: IOException) {
+            Multiverse.logger.error("Failed to copy dimension from $from to $to", e)
+            return context.source.fail("Failed to clone dimension, see logs for more info...")
+        }
+
+        server.addCustomLevel {
+            dimensionKey(destination)
+            dimensionType(level.dimensionTypeRegistration())
+            chunkGenerator(level.chunkSource.generator)
+            gameRules(level.gameRules.copy(level.enabledFeatures()))
+            seed(level.seed)
+            flat(level.isFlat)
+            persistence(LevelPersistence.Persistent)
+        }
+
+        val id = destination.toIdString()
+        val message = Component {
+            literal("Successfully cloned dimension ${level.dimension().toIdString()} into $id") + nl +
+                literal("[Click to teleport]").suggestCommand("/multiverse teleport $id ~ ~ ~").yellow()
         }
         return context.source.success(message)
     }

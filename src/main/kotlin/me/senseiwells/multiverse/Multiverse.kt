@@ -23,10 +23,13 @@ import net.minecraft.world.level.dimension.LevelStem
 import net.minecraft.world.level.levelgen.FlatLevelSource
 import net.minecraft.world.level.levelgen.flat.FlatLayerInfo
 import net.minecraft.world.level.levelgen.flat.FlatLevelGeneratorSettings
+import org.slf4j.LoggerFactory
 import java.util.*
 
 object Multiverse: ModInitializer {
     const val MOD_ID = "multiverse"
+
+    val logger = LoggerFactory.getLogger(MOD_ID)
 
     override fun onInitialize() {
         RegistryEventHandler.register(MultiverseRegistries.LEVEL_STEM, ::registerCustomStems)
