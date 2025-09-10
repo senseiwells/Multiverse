@@ -104,7 +104,7 @@ object MultiverseCommand: CommandTree {
                 }
             }
             literal("teleport") {
-                requires { Permissions.check(it, "multiverse.commands.multiverse.tp", 2) }
+                requires { Permissions.check(it, "multiverse.commands.multiverse.teleport", 2) }
                 argument("dimension", DimensionArgument.dimension()) {
                     executes { teleportToCustomDimension(it, it.source.position, it.source.rotation) }
                     argument("position", Vec3Argument.vec3()) {
