@@ -98,6 +98,9 @@ object MultiverseCommand: CommandTree {
                 argument("dimension", DimensionArgument.dimension()) {
                     suggests(::suggestCustomDimensions)
                     executes(::deleteCustomDimension)
+                    literal("force") {
+                        executes { deleteCustomDimension(it, true) }
+                    }
                 }
             }
             literal("teleport") {
@@ -230,11 +233,23 @@ object MultiverseCommand: CommandTree {
         return context.source.success(message)
     }
 
-    private fun deleteCustomDimension(context: CommandContext<CommandSourceStack>): Int {
+    private fun deleteCustomDimension(
+        context: CommandContext<CommandSourceStack>,
+        forced: Boolean = false
+    ): Int {
         val level = DimensionArgument.getDimension(context, "dimension")
         val dimension = level.dimension()
         if (level !is CustomLevel) {
             throw CANNOT_DELETE_DIMENSION.create(dimension.location())
+        }
+
+        if (!forced) {
+            val message = Component {
+                literal("Are you sure you want to delete this dimension? This action ") +
+                    literal("cannot").italicize().red() + literal(" be undone") + nl +
+                    literal("[Click to confirm deletion]").suggestCommand("/multiverse delete ${dimension.toIdString()} force").yellow()
+            }
+            return context.source.success(message)
         }
 
         if (context.source.server.deleteCustomLevel(level)) {
