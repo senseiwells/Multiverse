@@ -80,6 +80,13 @@ at their spawn, or at global spawn (which may still be in `minecraft:overworld`)
 
 Additionally, the generated end dimension *will* spawn the ender dragon.
 
+### Teleporting to Custom Dimensions
+
+Multiverse provides a command to teleport to different dimensions:
+```mcfunction
+/multiverse teleport <dimension> <position?> <rotation?>
+```
+
 
 ### Deleting Custom Dimensions
 
