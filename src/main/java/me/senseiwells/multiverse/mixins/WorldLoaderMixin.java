@@ -1,6 +1,5 @@
 package me.senseiwells.multiverse.mixins;
 
-import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 import com.llamalad7.mixinextras.sugar.Local;
 import me.senseiwells.multiverse.utils.MultiverseRegistries;
 import net.minecraft.core.HolderLookup;
@@ -9,12 +8,10 @@ import net.minecraft.resources.RegistryDataLoader;
 import net.minecraft.server.WorldLoader;
 import net.minecraft.server.packs.resources.CloseableResourceManager;
 import net.minecraft.world.level.dimension.LevelStem;
-import org.objectweb.asm.Opcodes;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.ModifyArg;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Stream;
@@ -23,23 +20,7 @@ import java.util.stream.Stream;
 public class WorldLoaderMixin {
     // We can't use fabric's dynamic registries because it registers
     // dynamic registries along with the other world-gen registries,
-    // whereas we need to register this with the dimension registries.
-    // @ModifyExpressionValue(
-    //     method = "load",
-    //     at = @At(
-    //         value = "FIELD",
-    //         target = "Lnet/minecraft/resources/RegistryDataLoader;DIMENSION_REGISTRIES:Ljava/util/List;",
-    //         opcode = Opcodes.GETSTATIC
-    //     )
-    // )
-    // private static List<RegistryDataLoader.RegistryData<?>> getDimensionRegistries(
-    //     List<RegistryDataLoader.RegistryData<?>> original
-    // ) {
-    //     List<RegistryDataLoader.RegistryData<?>> copy = new ArrayList<>(original);
-    //     copy.add();
-    //     return copy;
-    // }
-
+    // whereas we need to register this later after level stems.
     @ModifyArg(
         method = "load",
         at = @At(
