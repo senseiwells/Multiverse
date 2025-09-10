@@ -1,6 +1,6 @@
 <br/>
 <div align="center">
-<a href="https://github.com/ShaanCoding/ReadME-Generator">
+<a href="https://github.com/senseiwells/Multiverse">
 <img src="./src/main/resources/assets/multiverse/icon.png" alt="Logo" width="80" height="80">
 </a>
 <h3 align="center">Multiverse</h3>
