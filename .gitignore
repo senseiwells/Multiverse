@@ -1,0 +1,10 @@
+.idea/
+.gradle/
+.kotlin/
+
+build/
+run/
+
+*.psd
+flashback.md
+changes.md

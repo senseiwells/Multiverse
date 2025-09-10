@@ -1,0 +1,32 @@
+{
+  "schemaVersion": 1,
+  "id": "multiverse",
+  "version": "${version}",
+  "name": "Multiverse",
+  "description": "Create custom dimensions at runtime with a command!",
+  "icon": "assets/multiverse/icon.png",
+  "authors": [
+    "Sensei"
+  ],
+  "contact": {
+    "homepage": "https://github.com/senseiwells/Multiverse"
+  },
+  "license": "MIT",
+  "environment": "*",
+  "entrypoints": {
+    "main": [
+      {
+        "adapter": "kotlin",
+        "value": "me.senseiwells.multiverse.Multiverse"
+      }
+    ]
+  },
+  "mixins": [
+    "multiverse.mixins.json"
+  ],
+  "depends": {
+    "minecraft": "${minecraft_dependency}",
+    "fabric-api": ">=${fabric_api_dependency}",
+    "fabric-language-kotlin": ">=${fabric_kotlin_dependency}"
+  }
+}

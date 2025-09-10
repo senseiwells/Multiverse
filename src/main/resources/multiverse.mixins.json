@@ -1,0 +1,12 @@
+{
+  "required": true,
+  "minVersion": "0.8",
+  "package": "me.senseiwells.multiverse.mixins",
+  "compatibilityLevel": "JAVA_17",
+  "mixins": [
+    "WorldLoaderMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}
