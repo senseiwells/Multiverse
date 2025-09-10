@@ -19,7 +19,7 @@ repositories {
 }
 
 
-val modVersion = "0.0.1"
+val modVersion = "0.1.0"
 val releaseVersion = "${modVersion}+${libs.versions.minecraft.get()}"
 version = releaseVersion
 group = "me.senseiwells"
@@ -68,7 +68,7 @@ tasks {
             """
             """.trimIndent()
         )
-        type = BETA
+        type = STABLE
         modLoaders.add("fabric")
 
         displayName = "Multiverse $modVersion for ${libs.versions.minecraft.get()}"
