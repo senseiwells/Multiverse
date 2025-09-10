@@ -129,8 +129,8 @@ Custom dimension types should still be registered at
 `data/<namespace>/dimension_type/<path>.json`.
 
 There is an example datapack in this repository which you can download as a template
-[here]()
-or you can view it [here]().
+[here](https://github.com/senseiwells/Multiverse/raw/refs/heads/1.21.8/docs/example_datapack.zip),
+or you can view it [here](https://github.com/senseiwells/Multiverse/tree/1.21.8/docs/example_datapack).
 
 ### Permissions
 
