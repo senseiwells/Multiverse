@@ -76,7 +76,7 @@ tasks {
 
         modrinth {
             accessToken = providers.environmentVariable("MODRINTH_API_KEY")
-            projectId = ""
+            projectId = "xQSUV47Y"
             minecraftVersions.add(libs.versions.minecraft)
 
             requires {
