@@ -10,6 +10,7 @@ import kotlinx.io.IOException
 import me.lucko.fabric.api.permissions.v0.Permissions
 import me.senseiwells.multiverse.Multiverse
 import me.senseiwells.multiverse.commands.argument.SeedArgument
+import me.senseiwells.multiverse.level.TickManagedCustomLevelFactory
 import me.senseiwells.multiverse.utils.MultiverseRegistries
 import net.casual.arcade.commands.*
 import net.casual.arcade.commands.arguments.RegistryElementArgument
@@ -62,11 +63,14 @@ object MultiverseCommand: CommandTree {
                 literal("from") {
                     argument("stem", RegistryElementArgument.element(MultiverseRegistries.LEVEL_STEM)) {
                         argument("dimension", ResourceLocationArgument.id()) {
-                            executes { createStemmedDimension(it, 0, false) }
+                            executes { createStemmedDimension(it, 0, hasCustomGamerules = false, hasCustomTickManager = false) }
                             argument("seed", SeedArgument.seed()) {
-                                executes { createStemmedDimension(it, hasCustomGamerules = false) }
+                                executes { createStemmedDimension(it, hasCustomGamerules = false, hasCustomTickManager = false) }
                                 argument("has-custom-gamerules", BoolArgumentType.bool()) {
-                                    executes(::createStemmedDimension)
+                                    executes { createStemmedDimension(it, hasCustomTickManager = false) }
+                                    argument("has-custom-tickrate", BoolArgumentType.bool()) {
+                                        executes(::createStemmedDimension)
+                                    }
                                 }
                             }
                         }
@@ -89,7 +93,10 @@ object MultiverseCommand: CommandTree {
                 requires { Permissions.check(it, "multiverse.commands.multiverse.clone", 2) }
                 argument("from", DimensionArgument.dimension()) {
                     argument("to", ResourceLocationArgument.id()) {
-                        executes(::cloneDimension)
+                        executes { cloneDimension(it, false) }
+                        argument("has-custom-tickrate", BoolArgumentType.bool()) {
+                            executes(::cloneDimension)
+                        }
                     }
                 }
             }
@@ -121,7 +128,8 @@ object MultiverseCommand: CommandTree {
     private fun createStemmedDimension(
         context: CommandContext<CommandSourceStack>,
         seed: Long = SeedArgument.getSeed(context, "seed"),
-        hasCustomGamerules: Boolean = BoolArgumentType.getBool(context, "has-custom-gamerules")
+        hasCustomGamerules: Boolean = BoolArgumentType.getBool(context, "has-custom-gamerules"),
+        hasCustomTickManager: Boolean = BoolArgumentType.getBool(context, "has-custom-tickrate")
     ): Int {
         val server = context.source.server
         val stem = this.getStemHolder(context, "stem")
@@ -137,6 +145,9 @@ object MultiverseCommand: CommandTree {
             seed(seed)
             if (hasCustomGamerules) {
                 gameRules { }
+            }
+            if (hasCustomTickManager) {
+                constructor(::TickManagedCustomLevelFactory)
             }
             if (stem.value().generator is FlatLevelSource) {
                 flat(true)
@@ -188,7 +199,10 @@ object MultiverseCommand: CommandTree {
         return context.source.success(message)
     }
 
-    private fun cloneDimension(context: CommandContext<CommandSourceStack>): Int {
+    private fun cloneDimension(
+        context: CommandContext<CommandSourceStack>,
+        hasCustomTickManager: Boolean = BoolArgumentType.getBool(context, "has-custom-tickrate")
+    ): Int {
         val level = DimensionArgument.getDimension(context, "from")
         val destination = ResourceLocationArgument.getId(context, "to").toKey(Registries.DIMENSION)
 
@@ -219,10 +233,14 @@ object MultiverseCommand: CommandTree {
             dimensionKey(destination)
             dimensionType(level.dimensionTypeRegistration())
             chunkGenerator(level.chunkSource.generator)
+            timeOfDay(level.dayTime)
             gameRules(level.gameRules.copy(level.enabledFeatures()))
             seed(level.seed)
             flat(level.isFlat)
             persistence(LevelPersistence.Persistent)
+            if (hasCustomTickManager) {
+                constructor(::TickManagedCustomLevelFactory)
+            }
         }
 
         val id = destination.toIdString()

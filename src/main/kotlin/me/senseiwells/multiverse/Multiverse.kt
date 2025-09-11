@@ -1,20 +1,22 @@
 package me.senseiwells.multiverse
 
 import me.senseiwells.multiverse.commands.MultiverseCommand
+import me.senseiwells.multiverse.level.TickManagedCustomLevelFactory
 import me.senseiwells.multiverse.utils.MultiverseRegistries
+import me.senseiwells.multiverse.utils.multiverse
 import net.casual.arcade.commands.register
+import net.casual.arcade.dimensions.utils.DimensionRegistries
 import net.casual.arcade.events.GlobalEventHandler
 import net.casual.arcade.events.ListenerRegistry.Companion.register
 import net.casual.arcade.events.server.ServerRegisterCommandEvent
 import net.casual.arcade.events.server.registry.RegistryEventHandler
 import net.casual.arcade.events.server.registry.RegistryLoadedFromResourcesEvent
-import net.casual.arcade.utils.ResourceLocation
+import net.casual.arcade.utils.serialization.codec.CodecProvider.Companion.register
 import net.fabricmc.api.ModInitializer
 import net.minecraft.core.Holder
 import net.minecraft.core.HolderLookup
 import net.minecraft.core.Registry
 import net.minecraft.core.registries.Registries
-import net.minecraft.resources.ResourceLocation
 import net.minecraft.world.level.biome.Biome
 import net.minecraft.world.level.block.Block
 import net.minecraft.world.level.block.Blocks
@@ -32,15 +34,13 @@ object Multiverse: ModInitializer {
     val logger = LoggerFactory.getLogger(MOD_ID)
 
     override fun onInitialize() {
+        TickManagedCustomLevelFactory.register(DimensionRegistries.CUSTOM_LEVEL_FACTORY)
+
         RegistryEventHandler.register(MultiverseRegistries.LEVEL_STEM, ::registerCustomStems)
 
         GlobalEventHandler.Server.register<ServerRegisterCommandEvent> {
             it.register(MultiverseCommand)
         }
-    }
-
-    fun id(path: String): ResourceLocation {
-        return ResourceLocation(MOD_ID, path)
     }
 
     private fun registerCustomStems(event: RegistryLoadedFromResourcesEvent<LevelStem>) {
@@ -50,10 +50,10 @@ object Multiverse: ModInitializer {
         val plains = FlatLevelGeneratorSettings.getDefaultBiome(biomes)
 
         Registry.register(
-            event.registry, id("void"), LevelStem(overworld, this.createSingleLayerGenerator(Blocks.AIR, plains))
+            event.registry, multiverse("void"), LevelStem(overworld, this.createSingleLayerGenerator(Blocks.AIR, plains))
         )
         Registry.register(
-            event.registry, id("white_glass"), LevelStem(overworld, this.createSingleLayerGenerator(Blocks.WHITE_STAINED_GLASS, plains))
+            event.registry, multiverse("white_glass"), LevelStem(overworld, this.createSingleLayerGenerator(Blocks.WHITE_STAINED_GLASS, plains))
         )
 
         // Copy stems from the vanilla registry
