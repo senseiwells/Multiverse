@@ -35,13 +35,18 @@ Let's first discuss how to create a custom dimension.
 To create a custom dimension we will use the `create` subcommand.
 There are 2 branches from the `create` subcommand:
 ```mcfunction
-/multiverse create from <dimension-type> <dimension-id> <seed?> <has-custom-gamerules?>
+/multiverse create from <dimension-type> <dimension-id> <seed?> <has-custom-gamerules?> <has-custom-tickrate?>
 /multiverse create vanilla <overworld> <nether> <end> <seed?>
 ```
 In the first, `from`, we can specify a pre-defined dimension type, give our dimension a
 namespaced identifier, optionally specify a seed (otherwise random), and also specify
 whether the dimension should have its own gamerules or whether it should inherit
-its gamerules.
+its gamerules. 
+Finally, you can also specify whether the `/tick` command will work independently for
+that specific dimension. 
+If set to `true` any `/tick` commands run inside that dimension will affect *only* that
+specific dimension, `/tick` run in any dimension that doesn't have a custom tickrate
+will also only affect dimensions that also don't have a custom tickrate.
 
 Dimension types define how the terrain is generated as well as some behaviors
 which you can find listed on the [Minecraft wiki](https://minecraft.wiki/w/Dimension_type).
@@ -113,10 +118,14 @@ cloning copies *all* region files, and this may also hang your server.
 
 The command is as follows:
 ```mcfunction
-/multiverse clone <from-dimension> <to-dimension>
+/multiverse clone <from-dimension> <to-dimension> <has-custom-tickrate?>
 ```
 Where `<from-dimension>` is the existing dimension you want to clone from,
 and `<to-dimension>` is the namespaced id you want to create as a clone.
+
+You can also specify whether the cloned dimension will have its own custom
+tickrate manager, for more details read [the creating custom dimensions
+section](#creating-custom-dimensions).
 
 
 ### Defining Custom Dimension Types
