@@ -13,6 +13,7 @@ import me.senseiwells.multiverse.commands.argument.SeedArgument
 import me.senseiwells.multiverse.level.TickManagedCustomLevelFactory
 import me.senseiwells.multiverse.utils.MultiverseRegistries
 import net.casual.arcade.commands.*
+import net.casual.arcade.commands.arguments.RegionPosArgument
 import net.casual.arcade.commands.arguments.RegistryElementArgument
 import net.casual.arcade.dimensions.level.CustomLevel
 import net.casual.arcade.dimensions.level.LevelPersistence
@@ -40,12 +41,13 @@ import net.minecraft.world.level.dimension.LevelStem
 import net.minecraft.world.level.levelgen.FlatLevelSource
 import net.minecraft.world.phys.Vec2
 import net.minecraft.world.phys.Vec3
+import org.joml.Vector2i
+import java.nio.file.Path
 import java.util.concurrent.CompletableFuture
-import kotlin.io.path.ExperimentalPathApi
-import kotlin.io.path.copyToRecursively
-import kotlin.io.path.createParentDirectories
-import kotlin.io.path.exists
+import kotlin.io.path.*
 import kotlin.jvm.optionals.getOrNull
+import kotlin.math.max
+import kotlin.math.min
 
 object MultiverseCommand: CommandTree {
     private val DIMENSION_ALREADY_EXISTS = DynamicCommandExceptionType { dim ->
@@ -54,6 +56,8 @@ object MultiverseCommand: CommandTree {
     private val CANNOT_DELETE_DIMENSION = DynamicCommandExceptionType { dim ->
         Component.literal("Cannot delete non-custom dimension $dim")
     }
+
+    private val REGION_DIRECTORIES = listOf("entities", "poi", "region")
 
     override fun create(buildContext: CommandBuildContext): LiteralArgumentBuilder<CommandSourceStack> {
         return CommandTree.buildLiteral("multiverse") {
@@ -93,9 +97,15 @@ object MultiverseCommand: CommandTree {
                 requires { Permissions.check(it, "multiverse.commands.multiverse.clone", 2) }
                 argument("from", DimensionArgument.dimension()) {
                     argument("to", ResourceLocationArgument.id()) {
-                        executes { cloneDimension(it, false) }
+                        executes { cloneDimension(it, false, null, null) }
                         argument("has-custom-tickrate", BoolArgumentType.bool()) {
-                            executes(::cloneDimension)
+                            executes { cloneDimension(it, fromRegion = null, toRegion = null) }
+                            argument("region-from", RegionPosArgument.region()) {
+                                executes { cloneDimension(it, toRegion = null) }
+                                argument("region-to", RegionPosArgument.region()) {
+                                    executes(::cloneDimension)
+                                }
+                            }
                         }
                     }
                 }
@@ -201,7 +211,9 @@ object MultiverseCommand: CommandTree {
 
     private fun cloneDimension(
         context: CommandContext<CommandSourceStack>,
-        hasCustomTickManager: Boolean = BoolArgumentType.getBool(context, "has-custom-tickrate")
+        hasCustomTickManager: Boolean = BoolArgumentType.getBool(context, "has-custom-tickrate"),
+        fromRegion: Vector2i? = RegionPosArgument.getRegion(context, "region-from"),
+        toRegion: Vector2i? = RegionPosArgument.getRegion(context, "region-to")
     ): Int {
         val level = DimensionArgument.getDimension(context, "from")
         val destination = ResourceLocationArgument.getId(context, "to").toKey(Registries.DIMENSION)
@@ -214,16 +226,8 @@ object MultiverseCommand: CommandTree {
         val from = server.getDimensionPath(level.dimension())
         val to = server.getDimensionPath(destination)
 
-        val directoriesToCopy = listOf("data", "entities", "poi", "region")
-        @OptIn(ExperimentalPathApi::class)
         try {
-            for (directory in directoriesToCopy) {
-                val source = from.resolve(directory)
-                if (source.exists()) {
-                    val dest = to.resolve(directory).createParentDirectories()
-                    source.copyToRecursively(dest, followLinks = true, overwrite = true)
-                }
-            }
+            this.copyDimensionFiles(from, to, fromRegion, toRegion)
         } catch (e: IOException) {
             Multiverse.logger.error("Failed to copy dimension from $from to $to", e)
             return context.source.fail("Failed to clone dimension, see logs for more info...")
@@ -294,6 +298,56 @@ object MultiverseCommand: CommandTree {
         val dimensions = context.source.server.allLevels.filterIsInstance<CustomLevel>()
             .map { level -> level.dimension().location() }
         return SharedSuggestionProvider.suggestResource(dimensions, builder)
+    }
+
+    @OptIn(ExperimentalPathApi::class)
+    private fun copyDimensionFiles(from: Path, to: Path, fromRegion: Vector2i?, toRegion: Vector2i?) {
+        val source = from.resolve("data")
+        if (source.exists()) {
+            val dest = to.resolve("data").createParentDirectories()
+            source.copyToRecursively(dest, followLinks = true, overwrite = true)
+        }
+
+        if (fromRegion == null) {
+            this.copyAllRegionalDimensionalFiles(from, to)
+            return
+        }
+
+        this.copyRegionalDimensionFiles(from, to, fromRegion, toRegion ?: fromRegion)
+    }
+
+    private fun copyRegionalDimensionFiles(from: Path, to: Path, fromRegion: Vector2i, toRegion: Vector2i) {
+        val xs = min(fromRegion.x, toRegion.x)..max(fromRegion.x, toRegion.x)
+        val zs = min(fromRegion.y, toRegion.y)..max(fromRegion.y, toRegion.y)
+
+        for (directory in REGION_DIRECTORIES) {
+            val source = from.resolve(directory)
+            if (source.notExists()) {
+                continue
+            }
+
+            val dest = to.resolve(directory).createDirectories()
+            for (x in xs) {
+                for (z in zs) {
+                    val name = "r.$x.$z.mca"
+                    val file = source.resolve(name)
+                    if (file.exists()) {
+                        file.copyTo(dest.resolve(name))
+                    }
+                }
+            }
+        }
+    }
+
+    @OptIn(ExperimentalPathApi::class)
+    private fun copyAllRegionalDimensionalFiles(from: Path, to: Path) {
+        for (directory in REGION_DIRECTORIES) {
+            val source = from.resolve(directory)
+            if (source.exists()) {
+                val dest = to.resolve(directory).createParentDirectories()
+                source.copyToRecursively(dest, followLinks = false, overwrite = true)
+            }
+        }
     }
 
     @Suppress("SameParameterValue")

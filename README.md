@@ -113,12 +113,9 @@ on a build or for when you need to test the behavior of a redstone contraption.
 You will likely want to run `/save-all` prior to cloning a dimension to ensure that
 it's cloned in its most up-to-date state.
 
-It is not recommended that you clone dimensions which take up a lot of storage,
-cloning copies *all* region files, and this may also hang your server.
-
 The command is as follows:
 ```mcfunction
-/multiverse clone <from-dimension> <to-dimension> <has-custom-tickrate?>
+/multiverse clone <from-dimension> <to-dimension> <has-custom-tickrate?> <region-from?> <region-to?>
 ```
 Where `<from-dimension>` is the existing dimension you want to clone from,
 and `<to-dimension>` is the namespaced id you want to create as a clone.
@@ -126,6 +123,12 @@ and `<to-dimension>` is the namespaced id you want to create as a clone.
 You can also specify whether the cloned dimension will have its own custom
 tickrate manager, for more details read [the creating custom dimensions
 section](#creating-custom-dimensions).
+
+Finally, you can also specify a [region area](https://minecraft.wiki/w/Chunk_format) 
+to clone, you may also only specify one region in which case only that region will be cloned, 
+if unspecified the *entire* dimension will be copied. 
+This is not recommended as dimensions which take up a lot of storage as it copies 
+*all* region files, and it also may hang your server.
 
 
 ### Defining Custom Dimension Types

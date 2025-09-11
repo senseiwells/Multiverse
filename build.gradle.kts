@@ -19,7 +19,7 @@ repositories {
 }
 
 
-val modVersion = "0.1.2"
+val modVersion = "0.1.3"
 val releaseVersion = "${modVersion}+${libs.versions.minecraft.get()}"
 version = releaseVersion
 group = "me.senseiwells"
@@ -66,6 +66,7 @@ tasks {
         file = remapJar.get().archiveFile
         changelog.set(
             """
+            - Added optional region arguments to the `/multiverse clone` command
             """.trimIndent()
         )
         type = STABLE
