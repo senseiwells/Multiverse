@@ -19,7 +19,7 @@ repositories {
 }
 
 
-val modVersion = "0.1.3"
+val modVersion = "0.1.4"
 val releaseVersion = "${modVersion}+${libs.versions.minecraft.get()}"
 version = releaseVersion
 group = "me.senseiwells"
@@ -40,6 +40,7 @@ dependencies {
     includeModImplementation(libs.arcade.commands)
     includeModImplementation(libs.arcade.event.registry)
     includeModImplementation(libs.arcade.events.server)
+    includeModImplementation(libs.arcade.extensions)
     includeModImplementation(libs.arcade.utils)
 
     includeModImplementation(libs.permissions)
@@ -66,7 +67,7 @@ tasks {
         file = remapJar.get().archiveFile
         changelog.set(
             """
-            - Added optional region arguments to the `/multiverse clone` command
+            - Fixed a crash when loading up the game
             """.trimIndent()
         )
         type = STABLE

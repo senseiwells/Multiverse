@@ -21,6 +21,7 @@ arcade-dimensions     = { module = "net.casualchampionships:arcade-dimensions"  
 arcade-commands       = { module = "net.casualchampionships:arcade-commands"      , version.ref = "arcade" }
 arcade-event-registry = { module = "net.casualchampionships:arcade-event-registry", version.ref = "arcade" }
 arcade-events-server  = { module = "net.casualchampionships:arcade-events-server" , version.ref = "arcade" }
+arcade-extensions     = { module = "net.casualchampionships:arcade-extensions"    , version.ref = "arcade" }
 arcade-utils          = { module = "net.casualchampionships:arcade-utils"         , version.ref = "arcade" }
 
 [plugins]
