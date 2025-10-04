@@ -19,7 +19,7 @@ repositories {
 }
 
 
-val modVersion = "0.1.5"
+val modVersion = "0.2.0"
 val releaseVersion = "${modVersion}+${libs.versions.minecraft.get()}"
 version = releaseVersion
 group = "me.senseiwells"
@@ -67,8 +67,7 @@ tasks {
         file = remapJar.get().archiveFile
         changelog.set(
             """
-            - Fixed a crash when loading up the game
-            - Multiverse command not registering when switching singleplayer worlds
+            - Updated to 1.21.9
             """.trimIndent()
         )
         type = STABLE
