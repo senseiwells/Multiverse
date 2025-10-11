@@ -130,6 +130,12 @@ if unspecified the *entire* dimension will be copied.
 This is not recommended as dimensions which take up a lot of storage as it copies 
 *all* region files, and it also may hang your server.
 
+### Dimension Files
+
+Multiverse's dimensions are located in your `world/dimensions/<namespace>/<path>` directory,
+for example, if you create a dimension called `example:world` then your dimension files will be
+in `world/dimensions/example/world`.
+From here the structure of worlds is the same as the overworld/nether/end.
 
 ### Defining Custom Dimension Types
 
