@@ -19,7 +19,7 @@ repositories {
 }
 
 
-val modVersion = "0.2.0"
+val modVersion = "0.2.1"
 val releaseVersion = "${modVersion}+${libs.versions.minecraft.get()}"
 version = releaseVersion
 group = "me.senseiwells"
@@ -67,7 +67,7 @@ tasks {
         file = remapJar.get().archiveFile
         changelog.set(
             """
-            - Updated to 1.21.9
+            - Fix dimensions not having their own daylight cycles
             """.trimIndent()
         )
         type = STABLE

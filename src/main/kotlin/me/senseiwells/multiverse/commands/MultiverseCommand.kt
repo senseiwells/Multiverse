@@ -153,6 +153,8 @@ object MultiverseCommand: CommandTree {
             levelStem(stem)
             persistence(LevelPersistence.Persistent)
             seed(seed)
+            timeOfDay(0L)
+            tickTime(true)
             if (hasCustomGamerules) {
                 gameRules { }
             }
@@ -193,6 +195,8 @@ object MultiverseCommand: CommandTree {
                     dimensionKey(key)
                     seed(seed)
                     persistence(LevelPersistence.Persistent)
+                    timeOfDay(0L)
+                    tickTime(dimension == VanillaDimension.Overworld)
                 }
             }
         }
@@ -238,6 +242,7 @@ object MultiverseCommand: CommandTree {
             dimensionType(level.dimensionTypeRegistration())
             chunkGenerator(level.chunkSource.generator)
             timeOfDay(level.dayTime)
+            tickTime(true)
             gameRules(level.gameRules.copy(level.enabledFeatures()))
             seed(level.seed)
             flat(level.isFlat)
