@@ -12,6 +12,7 @@ import net.casual.arcade.events.server.ServerRegisterCommandEvent
 import net.casual.arcade.events.server.registry.RegistryEventHandler
 import net.casual.arcade.events.server.registry.RegistryLoadedFromResourcesEvent
 import net.casual.arcade.utils.serialization.codec.CodecProvider.Companion.register
+import net.casual.arcade.utils.toKey
 import net.fabricmc.api.ModInitializer
 import net.minecraft.core.Holder
 import net.minecraft.core.HolderLookup
@@ -59,7 +60,7 @@ object Multiverse: ModInitializer {
         // Copy stems from the vanilla registry
         val stems = event.lookupOrThrow(Registries.LEVEL_STEM) as HolderLookup
         for (stem in stems.listElements()) {
-            Registry.register(event.registry, stem.key(), stem.value())
+            Registry.register(event.registry, stem.key().location(), stem.value())
         }
     }
 
