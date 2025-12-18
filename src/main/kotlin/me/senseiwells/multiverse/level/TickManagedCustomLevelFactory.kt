@@ -10,8 +10,8 @@ import net.casual.arcade.dimensions.level.LevelProperties
 import net.casual.arcade.dimensions.level.factory.CustomLevelFactory
 import net.casual.arcade.dimensions.level.factory.SimpleCustomLevelFactory
 import net.casual.arcade.utils.serialization.codec.CodecProvider
+import net.minecraft.resources.Identifier
 import net.minecraft.resources.ResourceKey
-import net.minecraft.resources.ResourceLocation
 import net.minecraft.server.MinecraftServer
 import net.minecraft.world.level.Level
 
@@ -29,7 +29,7 @@ class TickManagedCustomLevelFactory(
     }
 
     companion object: CodecProvider<TickManagedCustomLevelFactory> {
-        override val ID: ResourceLocation = multiverse("tick_managed")
+        override val ID: Identifier = multiverse("tick_managed")
 
         override val CODEC: MapCodec<out TickManagedCustomLevelFactory> = RecordCodecBuilder.mapCodec { instance ->
             instance.group(

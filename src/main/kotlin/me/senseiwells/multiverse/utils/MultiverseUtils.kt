@@ -1,9 +1,9 @@
 package me.senseiwells.multiverse.utils
 
 import me.senseiwells.multiverse.Multiverse
-import net.casual.arcade.utils.ResourceLocation
-import net.minecraft.resources.ResourceLocation
+import net.casual.arcade.utils.Identifier
+import net.minecraft.resources.Identifier
 
-fun multiverse(path: String): ResourceLocation {
-    return ResourceLocation(Multiverse.MOD_ID,  path)
+fun multiverse(path: String): Identifier {
+    return Identifier(Multiverse.MOD_ID,  path)
 }

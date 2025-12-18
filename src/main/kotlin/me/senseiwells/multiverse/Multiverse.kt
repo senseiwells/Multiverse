@@ -60,7 +60,7 @@ object Multiverse: ModInitializer {
         // Copy stems from the vanilla registry
         val stems = event.lookupOrThrow(Registries.LEVEL_STEM) as HolderLookup
         for (stem in stems.listElements()) {
-            Registry.register(event.registry, stem.key().location(), stem.value())
+            Registry.register(event.registry, stem.key().identifier(), stem.value())
         }
     }
 

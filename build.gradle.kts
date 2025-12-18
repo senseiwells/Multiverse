@@ -19,7 +19,7 @@ repositories {
 }
 
 
-val modVersion = "0.2.2"
+val modVersion = "0.3.0"
 val releaseVersion = "${modVersion}+${libs.versions.minecraft.get()}"
 version = releaseVersion
 group = "me.senseiwells"
@@ -67,7 +67,7 @@ tasks {
         file = remapJar.get().archiveFile
         changelog.set(
             """
-            - Fix vanilla dimension types not working correctly
+            - Update to 1.21.11
             """.trimIndent()
         )
         type = STABLE

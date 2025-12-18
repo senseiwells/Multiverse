@@ -31,12 +31,13 @@ import net.minecraft.commands.CommandBuildContext
 import net.minecraft.commands.CommandSourceStack
 import net.minecraft.commands.SharedSuggestionProvider
 import net.minecraft.commands.arguments.DimensionArgument
-import net.minecraft.commands.arguments.ResourceLocationArgument
+import net.minecraft.commands.arguments.IdentifierArgument
 import net.minecraft.commands.arguments.coordinates.Vec2Argument
 import net.minecraft.commands.arguments.coordinates.Vec3Argument
 import net.minecraft.core.Holder
 import net.minecraft.core.registries.Registries
 import net.minecraft.network.chat.Component
+import net.minecraft.server.permissions.PermissionLevel
 import net.minecraft.world.level.dimension.LevelStem
 import net.minecraft.world.level.levelgen.FlatLevelSource
 import net.minecraft.world.phys.Vec2
@@ -61,12 +62,12 @@ object MultiverseCommand: CommandTree {
 
     override fun create(buildContext: CommandBuildContext): LiteralArgumentBuilder<CommandSourceStack> {
         return CommandTree.buildLiteral("multiverse") {
-            requires { Permissions.check(it, "multiverse.commands.multiverse", 2) }
+            requires { Permissions.check(it, "multiverse.commands.multiverse", PermissionLevel.GAMEMASTERS) }
             literal("create") {
-                requires { Permissions.check(it, "multiverse.commands.multiverse.create", 2) }
+                requires { Permissions.check(it, "multiverse.commands.multiverse.create", true) }
                 literal("from") {
                     argument("stem", RegistryElementArgument.element(MultiverseRegistries.LEVEL_STEM)) {
-                        argument("dimension", ResourceLocationArgument.id()) {
+                        argument("dimension", IdentifierArgument.id()) {
                             executes { createStemmedDimension(it, 0, hasCustomGamerules = false, hasCustomTickManager = false) }
                             argument("seed", SeedArgument.seed()) {
                                 executes { createStemmedDimension(it, hasCustomGamerules = false, hasCustomTickManager = false) }
@@ -81,9 +82,9 @@ object MultiverseCommand: CommandTree {
                     }
                 }
                 literal("vanilla") {
-                    argument("overworld-dimension", ResourceLocationArgument.id()) {
-                        argument("nether-dimension", ResourceLocationArgument.id()) {
-                            argument("end-dimension", ResourceLocationArgument.id()) {
+                    argument("overworld-dimension", IdentifierArgument.id()) {
+                        argument("nether-dimension", IdentifierArgument.id()) {
+                            argument("end-dimension", IdentifierArgument.id()) {
                                 executes { createVanillaDimensions(it, 0) }
                                 argument("seed", SeedArgument.seed()) {
                                     executes(::createVanillaDimensions)
@@ -94,9 +95,9 @@ object MultiverseCommand: CommandTree {
                 }
             }
             literal("clone") {
-                requires { Permissions.check(it, "multiverse.commands.multiverse.clone", 2) }
+                requires { Permissions.check(it, "multiverse.commands.multiverse.clone", true) }
                 argument("from", DimensionArgument.dimension()) {
-                    argument("to", ResourceLocationArgument.id()) {
+                    argument("to", IdentifierArgument.id()) {
                         executes { cloneDimension(it, false, null, null) }
                         argument("has-custom-tickrate", BoolArgumentType.bool()) {
                             executes { cloneDimension(it, fromRegion = null, toRegion = null) }
@@ -111,7 +112,7 @@ object MultiverseCommand: CommandTree {
                 }
             }
             literal("delete") {
-                requires { Permissions.check(it, "multiverse.commands.multiverse.delete", 2) }
+                requires { Permissions.check(it, "multiverse.commands.multiverse.delete", true) }
                 argument("dimension", DimensionArgument.dimension()) {
                     suggests(::suggestCustomDimensions)
                     executes(::deleteCustomDimension)
@@ -121,7 +122,7 @@ object MultiverseCommand: CommandTree {
                 }
             }
             literal("teleport") {
-                requires { Permissions.check(it, "multiverse.commands.multiverse.teleport", 2) }
+                requires { Permissions.check(it, "multiverse.commands.multiverse.teleport", true) }
                 argument("dimension", DimensionArgument.dimension()) {
                     executes { teleportToCustomDimension(it, it.source.position, it.source.rotation) }
                     argument("position", Vec3Argument.vec3()) {
@@ -143,9 +144,9 @@ object MultiverseCommand: CommandTree {
     ): Int {
         val server = context.source.server
         val stem = this.getStemHolder(context, "stem")
-        val dimension = ResourceLocationArgument.getId(context, "dimension").toKey(Registries.DIMENSION)
+        val dimension = IdentifierArgument.getId(context, "dimension").toKey(Registries.DIMENSION)
         if (server.levelKeys().contains(dimension)) {
-            throw DIMENSION_ALREADY_EXISTS.create(dimension.location())
+            throw DIMENSION_ALREADY_EXISTS.create(dimension.toIdString())
         }
 
         server.addCustomLevel {
@@ -177,15 +178,15 @@ object MultiverseCommand: CommandTree {
         context: CommandContext<CommandSourceStack>,
         seed: Long = SeedArgument.getSeed(context, "seed"),
     ): Int {
-        val overworldKey = ResourceLocationArgument.getId(context, "overworld-dimension").toKey(Registries.DIMENSION)
-        val netherKey = ResourceLocationArgument.getId(context, "nether-dimension").toKey(Registries.DIMENSION)
-        val endKey = ResourceLocationArgument.getId(context, "end-dimension").toKey(Registries.DIMENSION)
+        val overworldKey = IdentifierArgument.getId(context, "overworld-dimension").toKey(Registries.DIMENSION)
+        val netherKey = IdentifierArgument.getId(context, "nether-dimension").toKey(Registries.DIMENSION)
+        val endKey = IdentifierArgument.getId(context, "end-dimension").toKey(Registries.DIMENSION)
         val keys = VanillaDimension.entries.zip(listOf(overworldKey, netherKey, endKey))
 
         val server = context.source.server
         for ((_, key) in keys) {
             if (server.levelKeys().contains(key)) {
-                throw DIMENSION_ALREADY_EXISTS.create(key.location())
+                throw DIMENSION_ALREADY_EXISTS.create(key.toIdString())
             }
         }
 
@@ -206,7 +207,7 @@ object MultiverseCommand: CommandTree {
 
         val message = Component {
             literal("Successfully created custom dimensions") + nl + keys.joinToComponent(nl) { (dim, key) ->
-                val command = "/multiverse teleport ${key.location()} ~ ~ ~"
+                val command = "/multiverse teleport ${key.identifier()} ~ ~ ~"
                 Component.literal("[Click to teleport to $dim]").suggestCommand(command).yellow()
             }
         }
@@ -220,11 +221,11 @@ object MultiverseCommand: CommandTree {
         toRegion: Vector2i? = RegionPosArgument.getRegion(context, "region-to")
     ): Int {
         val level = DimensionArgument.getDimension(context, "from")
-        val destination = ResourceLocationArgument.getId(context, "to").toKey(Registries.DIMENSION)
+        val destination = IdentifierArgument.getId(context, "to").toKey(Registries.DIMENSION)
 
         val server = context.source.server
         if (server.levelKeys().contains(destination)) {
-            throw DIMENSION_ALREADY_EXISTS.create(destination.location())
+            throw DIMENSION_ALREADY_EXISTS.create(destination.toIdString())
         }
 
         val from = server.getDimensionPath(level.dimension())
@@ -267,7 +268,7 @@ object MultiverseCommand: CommandTree {
         val level = DimensionArgument.getDimension(context, "dimension")
         val dimension = level.dimension()
         if (level !is CustomLevel) {
-            throw CANNOT_DELETE_DIMENSION.create(dimension.location())
+            throw CANNOT_DELETE_DIMENSION.create(dimension.toIdString())
         }
 
         if (!forced) {
@@ -280,9 +281,9 @@ object MultiverseCommand: CommandTree {
         }
 
         if (context.source.server.deleteCustomLevel(level)) {
-            return context.source.success("Successfully deleted dimension ${dimension.location()}")
+            return context.source.success("Successfully deleted dimension ${dimension.identifier()}")
         }
-        return context.source.fail("Failed to delete dimension ${dimension.location()}")
+        return context.source.fail("Failed to delete dimension ${dimension.identifier()}")
     }
 
     private fun teleportToCustomDimension(
@@ -293,7 +294,7 @@ object MultiverseCommand: CommandTree {
         val level = DimensionArgument.getDimension(context, "dimension")
         val location = level.asLocation(position, rotation)
         context.source.entityOrException.teleportTo(location)
-        return context.source.success("Successfully teleported to ${level.dimension().location()}")
+        return context.source.success("Successfully teleported to ${level.dimension().identifier()}")
     }
 
     private fun suggestCustomDimensions(
@@ -301,7 +302,7 @@ object MultiverseCommand: CommandTree {
         builder: SuggestionsBuilder
     ): CompletableFuture<Suggestions> {
         val dimensions = context.source.server.allLevels.filterIsInstance<CustomLevel>()
-            .map { level -> level.dimension().location() }
+            .map { level -> level.dimension().identifier() }
         return SharedSuggestionProvider.suggestResource(dimensions, builder)
     }
 
