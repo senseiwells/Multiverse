@@ -45,6 +45,12 @@ java {
     withSourcesJar()
 }
 
+loom {
+    decompilerOptions.named("vineflower") {
+        options.put("mark-corresponding-synthetics", "1")
+    }
+}
+
 tasks {
     processResources {
         inputs.property("version", modVersion)

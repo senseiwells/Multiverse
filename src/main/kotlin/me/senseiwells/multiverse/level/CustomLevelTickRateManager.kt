@@ -1,7 +1,7 @@
 package me.senseiwells.multiverse.level
 
 import net.casual.arcade.dimensions.level.CustomLevel
-import net.casual.arcade.utils.PlayerUtils.broadcast
+import net.casual.arcade.utils.player.broadcast
 import net.minecraft.network.protocol.game.ClientboundTickingStatePacket
 import net.minecraft.network.protocol.game.ClientboundTickingStepPacket
 import net.minecraft.server.ServerTickRateManager

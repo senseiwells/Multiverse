@@ -25,13 +25,13 @@ class TickManagedCustomLevelFactory(
     }
 
     override fun codec(): MapCodec<out CustomLevelFactory> {
-        return CODEC
+        return codec
     }
 
     companion object: CodecProvider<TickManagedCustomLevelFactory> {
-        override val ID: Identifier = multiverse("tick_managed")
+        override val id: Identifier = multiverse("tick_managed")
 
-        override val CODEC: MapCodec<out TickManagedCustomLevelFactory> = RecordCodecBuilder.mapCodec { instance ->
+        override val codec: MapCodec<out TickManagedCustomLevelFactory> = RecordCodecBuilder.mapCodec { instance ->
             instance.group(
                 propertiesCodec(), generationOptionsCodec(), persistenceCodec()
             ).apply(instance, ::TickManagedCustomLevelFactory)

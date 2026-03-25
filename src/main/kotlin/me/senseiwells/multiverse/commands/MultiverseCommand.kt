@@ -23,8 +23,8 @@ import net.casual.arcade.dimensions.utils.addCustomLevel
 import net.casual.arcade.dimensions.utils.deleteCustomLevel
 import net.casual.arcade.dimensions.utils.getDimensionPath
 import net.casual.arcade.utils.component.*
+import net.casual.arcade.utils.entity.teleportTo
 import net.casual.arcade.utils.math.location.LocationWithLevel.Companion.asLocation
-import net.casual.arcade.utils.teleportTo
 import net.casual.arcade.utils.toIdString
 import net.casual.arcade.utils.toKey
 import net.minecraft.commands.CommandBuildContext
@@ -154,7 +154,6 @@ object MultiverseCommand: CommandTree {
             levelStem(stem)
             persistence(LevelPersistence.Persistent)
             seed(seed)
-            timeOfDay(0L)
             tickTime(true)
             if (hasCustomGamerules) {
                 gameRules { }
@@ -196,7 +195,6 @@ object MultiverseCommand: CommandTree {
                     dimensionKey(key)
                     seed(seed)
                     persistence(LevelPersistence.Persistent)
-                    timeOfDay(0L)
                     tickTime(dimension == VanillaDimension.Overworld)
                 }
             }
@@ -242,7 +240,6 @@ object MultiverseCommand: CommandTree {
             dimensionKey(destination)
             dimensionType(level.dimensionTypeRegistration())
             chunkGenerator(level.chunkSource.generator)
-            timeOfDay(level.dayTime)
             tickTime(true)
             gameRules(level.gameRules.copy(level.enabledFeatures()))
             seed(level.seed)

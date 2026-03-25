@@ -12,11 +12,9 @@ import net.casual.arcade.events.server.ServerRegisterCommandEvent
 import net.casual.arcade.events.server.registry.RegistryEventHandler
 import net.casual.arcade.events.server.registry.RegistryLoadedFromResourcesEvent
 import net.casual.arcade.utils.serialization.codec.CodecProvider.Companion.register
-import net.casual.arcade.utils.toKey
 import net.fabricmc.api.ModInitializer
 import net.minecraft.core.Holder
 import net.minecraft.core.HolderLookup
-import net.minecraft.core.Registry
 import net.minecraft.core.registries.Registries
 import net.minecraft.world.level.biome.Biome
 import net.minecraft.world.level.block.Block
@@ -26,13 +24,14 @@ import net.minecraft.world.level.dimension.LevelStem
 import net.minecraft.world.level.levelgen.FlatLevelSource
 import net.minecraft.world.level.levelgen.flat.FlatLayerInfo
 import net.minecraft.world.level.levelgen.flat.FlatLevelGeneratorSettings
+import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import java.util.*
 
 object Multiverse: ModInitializer {
     const val MOD_ID = "multiverse"
 
-    val logger = LoggerFactory.getLogger(MOD_ID)
+    val logger: Logger = LoggerFactory.getLogger(MOD_ID)
 
     override fun onInitialize() {
         TickManagedCustomLevelFactory.register(DimensionRegistries.CUSTOM_LEVEL_FACTORY)
@@ -50,17 +49,19 @@ object Multiverse: ModInitializer {
         val biomes = event.lookupOrThrow(Registries.BIOME)
         val plains = FlatLevelGeneratorSettings.getDefaultBiome(biomes)
 
-        Registry.register(
-            event.registry, multiverse("void"), LevelStem(overworld, this.createSingleLayerGenerator(Blocks.AIR, plains))
+        event.register(
+            multiverse("xyz"),
+            LevelStem(overworld, this.createSingleLayerGenerator(Blocks.AIR, plains))
         )
-        Registry.register(
-            event.registry, multiverse("white_glass"), LevelStem(overworld, this.createSingleLayerGenerator(Blocks.WHITE_STAINED_GLASS, plains))
+        event.register(
+            multiverse("white_glass"),
+            LevelStem(overworld, this.createSingleLayerGenerator(Blocks.WHITE_STAINED_GLASS, plains))
         )
 
         // Copy stems from the vanilla registry
         val stems = event.lookupOrThrow(Registries.LEVEL_STEM) as HolderLookup
         for (stem in stems.listElements()) {
-            Registry.register(event.registry, stem.key().identifier(), stem.value())
+            event.register(stem.key().identifier(), stem.value())
         }
     }
 
