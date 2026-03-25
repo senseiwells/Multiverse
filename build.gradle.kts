@@ -19,31 +19,26 @@ repositories {
 }
 
 
-val modVersion = "0.3.1"
+val modVersion = "0.4.0"
 val releaseVersion = "${modVersion}+${libs.versions.minecraft.get()}"
 version = releaseVersion
 group = "me.senseiwells"
 
 dependencies {
     minecraft(libs.minecraft)
-    @Suppress("UnstableApiUsage")
-    mappings(loom.layered {
-        officialMojangMappings()
-        parchment("org.parchmentmc.data:parchment-${libs.versions.parchment.get()}@zip")
-    })
 
-    modImplementation(libs.fabric.loader)
-    modImplementation(libs.fabric.api)
-    modImplementation(libs.fabric.kotlin)
+    implementation(libs.fabric.loader)
+    implementation(libs.fabric.api)
+    implementation(libs.fabric.kotlin)
 
-    includeModImplementation(libs.arcade.dimensions)
-    includeModImplementation(libs.arcade.commands)
-    includeModImplementation(libs.arcade.event.registry)
-    includeModImplementation(libs.arcade.events.server)
-    includeModImplementation(libs.arcade.extensions)
-    includeModImplementation(libs.arcade.utils)
+    include(implementation(libs.arcade.dimensions.get())!!)
+    include(implementation(libs.arcade.commands.get())!!)
+    include(implementation(libs.arcade.event.registry.get())!!)
+    include(implementation(libs.arcade.events.server.get())!!)
+    include(implementation(libs.arcade.extensions.get())!!)
+    include(implementation(libs.arcade.utils.get())!!)
 
-    includeModImplementation(libs.permissions)
+    include(implementation(libs.permissions.get())!!)
 }
 
 java {
@@ -56,7 +51,7 @@ tasks {
         filesMatching("fabric.mod.json") {
             expand(mutableMapOf(
                 "version" to version,
-                "minecraft_dependency" to libs.versions.minecraft.get().replaceAfterLast('.', "x"),
+                "minecraft_dependency" to libs.versions.minecraft.get(),
                 "fabric_api_dependency" to libs.versions.fabric.api.get(),
                 "fabric_kotlin_dependency" to libs.versions.fabric.kotlin.get(),
             ))
@@ -64,10 +59,10 @@ tasks {
     }
 
     publishMods {
-        file = remapJar.get().archiveFile
+        file = jar.get().archiveFile
         changelog.set(
             """
-            - Fix a bug that caused the game to crash if multiverse create/delete commands were ran in command blocks
+            - Update to 26.1
             """.trimIndent()
         )
         type = STABLE
@@ -92,9 +87,4 @@ tasks {
             }
         }
     }
-}
-
-private fun DependencyHandler.includeModImplementation(provider: Provider<*>) {
-    include(provider)
-    modImplementation(provider)
 }
