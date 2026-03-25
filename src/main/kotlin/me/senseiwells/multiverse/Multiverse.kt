@@ -50,7 +50,7 @@ object Multiverse: ModInitializer {
         val plains = FlatLevelGeneratorSettings.getDefaultBiome(biomes)
 
         event.register(
-            multiverse("xyz"),
+            multiverse("void"),
             LevelStem(overworld, this.createSingleLayerGenerator(Blocks.AIR, plains))
         )
         event.register(

@@ -49,6 +49,12 @@ loom {
     decompilerOptions.named("vineflower") {
         options.put("mark-corresponding-synthetics", "1")
     }
+
+    runs {
+        getByName("server") {
+            runDir = "run/${libs.versions.minecraft.get()}"
+        }
+    }
 }
 
 tasks {
