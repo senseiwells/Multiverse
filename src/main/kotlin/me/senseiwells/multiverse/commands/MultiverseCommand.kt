@@ -50,7 +50,7 @@ import kotlin.jvm.optionals.getOrNull
 import kotlin.math.max
 import kotlin.math.min
 
-object MultiverseCommand: CommandTree {
+object MultiverseCommand: CommandTree<CommandSourceStack> {
     private val DIMENSION_ALREADY_EXISTS = DynamicCommandExceptionType { dim ->
         Component.literal("The dimension $dim already exists")
     }
@@ -154,7 +154,7 @@ object MultiverseCommand: CommandTree {
             levelStem(stem)
             persistence(LevelPersistence.Persistent)
             seed(seed)
-            tickTime(true)
+            clockState()
             if (hasCustomGamerules) {
                 gameRules { }
             }
@@ -195,7 +195,6 @@ object MultiverseCommand: CommandTree {
                     dimensionKey(key)
                     seed(seed)
                     persistence(LevelPersistence.Persistent)
-                    tickTime(dimension == VanillaDimension.Overworld)
                 }
             }
         }
@@ -240,7 +239,7 @@ object MultiverseCommand: CommandTree {
             dimensionKey(destination)
             dimensionType(level.dimensionTypeRegistration())
             chunkGenerator(level.chunkSource.generator)
-            tickTime(true)
+            clockState()
             gameRules(level.gameRules.copy(level.enabledFeatures()))
             seed(level.seed)
             flat(level.isFlat)

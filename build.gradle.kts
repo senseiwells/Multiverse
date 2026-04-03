@@ -19,7 +19,7 @@ repositories {
 }
 
 
-val modVersion = "0.4.0"
+val modVersion = "0.4.1"
 val releaseVersion = "${modVersion}+${libs.versions.minecraft.get()}"
 version = releaseVersion
 group = "me.senseiwells"
@@ -63,7 +63,7 @@ tasks {
         filesMatching("fabric.mod.json") {
             expand(mutableMapOf(
                 "version" to version,
-                "minecraft_dependency" to libs.versions.minecraft.get(),
+                "minecraft_dependency" to "~${libs.versions.minecraft.get()}",
                 "fabric_api_dependency" to libs.versions.fabric.api.get(),
                 "fabric_kotlin_dependency" to libs.versions.fabric.kotlin.get(),
             ))
@@ -74,7 +74,7 @@ tasks {
         file = jar.get().archiveFile
         changelog.set(
             """
-            - Update to 26.1
+            - Support 26.1.x
             """.trimIndent()
         )
         type = STABLE
