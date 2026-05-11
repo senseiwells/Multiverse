@@ -19,7 +19,7 @@ repositories {
 }
 
 
-val modVersion = "0.4.1"
+val modVersion = "0.4.2"
 val releaseVersion = "${modVersion}+${libs.versions.minecraft.get()}"
 version = releaseVersion
 group = "me.senseiwells"
@@ -74,7 +74,8 @@ tasks {
         file = jar.get().archiveFile
         changelog.set(
             """
-            - Support 26.1.x
+            - Fix structures not generating
+            - Fix clock state issue
             """.trimIndent()
         )
         type = STABLE

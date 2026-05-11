@@ -154,7 +154,10 @@ object MultiverseCommand: CommandTree<CommandSourceStack> {
             levelStem(stem)
             persistence(LevelPersistence.Persistent)
             seed(seed)
-            clockState()
+            generateStructures(true)
+            if (stem.value().type.value().defaultClock.isPresent) {
+                clockState()
+            }
             if (hasCustomGamerules) {
                 gameRules { }
             }
