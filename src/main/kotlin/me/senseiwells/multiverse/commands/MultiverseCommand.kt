@@ -156,6 +156,7 @@ object MultiverseCommand: CommandTree {
             seed(seed)
             timeOfDay(0L)
             tickTime(true)
+            generateStructures(true)
             if (hasCustomGamerules) {
                 gameRules { }
             }

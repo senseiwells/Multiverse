@@ -19,7 +19,7 @@ repositories {
 }
 
 
-val modVersion = "0.3.1"
+val modVersion = "0.3.2"
 val releaseVersion = "${modVersion}+${libs.versions.minecraft.get()}"
 version = releaseVersion
 group = "me.senseiwells"
@@ -67,7 +67,7 @@ tasks {
         file = remapJar.get().archiveFile
         changelog.set(
             """
-            - Fix a bug that caused the game to crash if multiverse create/delete commands were ran in command blocks
+            - Fix structures not generating
             """.trimIndent()
         )
         type = STABLE
