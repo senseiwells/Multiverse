@@ -39,6 +39,7 @@ import net.minecraft.core.registries.Registries
 import net.minecraft.network.chat.Component
 import net.minecraft.server.permissions.PermissionLevel
 import net.minecraft.world.level.dimension.LevelStem
+import net.minecraft.world.level.gamerules.GameRules
 import net.minecraft.world.level.levelgen.FlatLevelSource
 import net.minecraft.world.phys.Vec2
 import net.minecraft.world.phys.Vec3
@@ -159,7 +160,7 @@ object MultiverseCommand: CommandTree<CommandSourceStack> {
                 clockState()
             }
             if (hasCustomGamerules) {
-                gameRules { }
+                gameRules(GameRules(server.overworld().enabledFeatures()))
             }
             if (hasCustomTickManager) {
                 constructor(::TickManagedCustomLevelFactory)

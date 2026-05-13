@@ -19,7 +19,7 @@ repositories {
 }
 
 
-val modVersion = "0.4.2"
+val modVersion = "0.4.3"
 val releaseVersion = "${modVersion}+${libs.versions.minecraft.get()}"
 version = releaseVersion
 group = "me.senseiwells"
@@ -31,12 +31,8 @@ dependencies {
     implementation(libs.fabric.api)
     implementation(libs.fabric.kotlin)
 
-    include(implementation(libs.arcade.dimensions.get())!!)
-    include(implementation(libs.arcade.commands.get())!!)
-    include(implementation(libs.arcade.event.registry.get())!!)
-    include(implementation(libs.arcade.events.server.get())!!)
-    include(implementation(libs.arcade.extensions.get())!!)
-    include(implementation(libs.arcade.utils.get())!!)
+    implementation(libs.bundles.arcade)
+    include(libs.bundles.arcade)
 
     include(implementation(libs.permissions.get())!!)
 }
@@ -74,8 +70,7 @@ tasks {
         file = jar.get().archiveFile
         changelog.set(
             """
-            - Fix structures not generating
-            - Fix clock state issue
+            - Fix experimental gamerules not working properly
             """.trimIndent()
         )
         type = STABLE
