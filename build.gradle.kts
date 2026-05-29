@@ -19,7 +19,7 @@ repositories {
 }
 
 
-val modVersion = "0.4.3"
+val modVersion = "0.4.4"
 val releaseVersion = "${modVersion}+${libs.versions.minecraft.get()}"
 version = releaseVersion
 group = "me.senseiwells"
@@ -70,7 +70,7 @@ tasks {
         file = jar.get().archiveFile
         changelog.set(
             """
-            - Fix experimental gamerules not working properly
+            - Update dependencies
             """.trimIndent()
         )
         type = STABLE
