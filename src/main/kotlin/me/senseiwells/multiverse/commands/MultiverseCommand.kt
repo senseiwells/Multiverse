@@ -7,11 +7,11 @@ import com.mojang.brigadier.exceptions.DynamicCommandExceptionType
 import com.mojang.brigadier.suggestion.Suggestions
 import com.mojang.brigadier.suggestion.SuggestionsBuilder
 import kotlinx.io.IOException
-import me.lucko.fabric.api.permissions.v0.Permissions
 import me.senseiwells.multiverse.Multiverse
 import me.senseiwells.multiverse.commands.argument.SeedArgument
 import me.senseiwells.multiverse.level.TickManagedCustomLevelFactory
 import me.senseiwells.multiverse.utils.MultiverseRegistries
+import me.senseiwells.multiverse.utils.multiverse
 import net.casual.arcade.commands.*
 import net.casual.arcade.commands.arguments.RegionPosArgument
 import net.casual.arcade.commands.arguments.RegistryElementArgument
@@ -25,8 +25,8 @@ import net.casual.arcade.dimensions.utils.getDimensionPath
 import net.casual.arcade.utils.component.*
 import net.casual.arcade.utils.entity.teleportTo
 import net.casual.arcade.utils.math.location.LocationWithLevel.Companion.asLocation
-import net.casual.arcade.utils.toIdString
-import net.casual.arcade.utils.toKey
+import net.casual.arcade.utils.registries.toIdString
+import net.casual.arcade.utils.registries.toKey
 import net.minecraft.commands.CommandBuildContext
 import net.minecraft.commands.CommandSourceStack
 import net.minecraft.commands.SharedSuggestionProvider
@@ -63,9 +63,9 @@ object MultiverseCommand: CommandTree<CommandSourceStack> {
 
     override fun create(buildContext: CommandBuildContext): LiteralArgumentBuilder<CommandSourceStack> {
         return CommandTree.buildLiteral("multiverse") {
-            requires { Permissions.check(it, "multiverse.commands.multiverse", PermissionLevel.GAMEMASTERS) }
+            requiresPermission(multiverse("commands.multiverse"), PermissionLevel.GAMEMASTERS)
             literal("create") {
-                requires { Permissions.check(it, "multiverse.commands.multiverse.create", true) }
+                requiresPermission(multiverse("commands.multiverse.create"), true)
                 literal("from") {
                     argument("stem", RegistryElementArgument.element(MultiverseRegistries.LEVEL_STEM)) {
                         argument("dimension", IdentifierArgument.id()) {
@@ -96,7 +96,7 @@ object MultiverseCommand: CommandTree<CommandSourceStack> {
                 }
             }
             literal("clone") {
-                requires { Permissions.check(it, "multiverse.commands.multiverse.clone", true) }
+                requiresPermission(multiverse("commands.multiverse.clone"), true)
                 argument("from", DimensionArgument.dimension()) {
                     argument("to", IdentifierArgument.id()) {
                         executes { cloneDimension(it, false, null, null) }
@@ -113,7 +113,7 @@ object MultiverseCommand: CommandTree<CommandSourceStack> {
                 }
             }
             literal("delete") {
-                requires { Permissions.check(it, "multiverse.commands.multiverse.delete", true) }
+                requiresPermission(multiverse("commands.multiverse.delete"), true)
                 argument("dimension", DimensionArgument.dimension()) {
                     suggests(::suggestCustomDimensions)
                     executes(::deleteCustomDimension)
@@ -123,7 +123,7 @@ object MultiverseCommand: CommandTree<CommandSourceStack> {
                 }
             }
             literal("teleport") {
-                requires { Permissions.check(it, "multiverse.commands.multiverse.teleport", true) }
+                requiresPermission(multiverse("commands.multiverse.teleport"), true)
                 argument("dimension", DimensionArgument.dimension()) {
                     executes { teleportToCustomDimension(it, it.source.position, it.source.rotation) }
                     argument("position", Vec3Argument.vec3()) {

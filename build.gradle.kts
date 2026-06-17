@@ -19,7 +19,7 @@ repositories {
 }
 
 
-val modVersion = "0.4.4"
+val modVersion = "0.5.0"
 val releaseVersion = "${modVersion}+${libs.versions.minecraft.get()}"
 version = releaseVersion
 group = "me.senseiwells"
@@ -33,8 +33,6 @@ dependencies {
 
     implementation(libs.bundles.arcade)
     include(libs.bundles.arcade)
-
-    include(implementation(libs.permissions.get())!!)
 }
 
 java {
@@ -48,7 +46,7 @@ loom {
 
     runs {
         getByName("server") {
-            runDir = "run/${libs.versions.minecraft.get()}"
+            runDirectory.set(file("run/${libs.versions.minecraft.get()}"))
         }
     }
 }
@@ -70,7 +68,7 @@ tasks {
         file = jar.get().archiveFile
         changelog.set(
             """
-            - Update dependencies
+            - Update to 26.2
             """.trimIndent()
         )
         type = STABLE

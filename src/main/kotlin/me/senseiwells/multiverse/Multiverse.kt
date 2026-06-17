@@ -55,7 +55,7 @@ object Multiverse: ModInitializer {
         )
         event.register(
             multiverse("white_glass"),
-            LevelStem(overworld, this.createSingleLayerGenerator(Blocks.WHITE_STAINED_GLASS, plains))
+            LevelStem(overworld, this.createSingleLayerGenerator(Blocks.STAINED_GLASS.white, plains))
         )
 
         // Copy stems from the vanilla registry
