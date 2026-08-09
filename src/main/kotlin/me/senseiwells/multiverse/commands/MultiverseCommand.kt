@@ -24,7 +24,7 @@ import net.casual.arcade.dimensions.utils.deleteCustomLevel
 import net.casual.arcade.dimensions.utils.getDimensionPath
 import net.casual.arcade.utils.component.*
 import net.casual.arcade.utils.entity.teleportTo
-import net.casual.arcade.utils.math.location.LocationWithLevel.Companion.asLocation
+import net.casual.arcade.utils.math.location.asLocation
 import net.casual.arcade.utils.registries.toIdString
 import net.casual.arcade.utils.registries.toKey
 import net.minecraft.commands.CommandBuildContext

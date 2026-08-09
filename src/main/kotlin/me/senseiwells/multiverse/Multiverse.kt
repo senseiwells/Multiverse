@@ -7,10 +7,10 @@ import me.senseiwells.multiverse.utils.multiverse
 import net.casual.arcade.commands.register
 import net.casual.arcade.dimensions.utils.DimensionRegistries
 import net.casual.arcade.events.GlobalEventHandler
-import net.casual.arcade.events.ListenerRegistry.Companion.register
 import net.casual.arcade.events.server.ServerRegisterCommandEvent
 import net.casual.arcade.events.server.registry.RegistryEventHandler
 import net.casual.arcade.events.server.registry.RegistryLoadedFromResourcesEvent
+import net.casual.arcade.events.utils.register
 import net.casual.arcade.utils.serialization.codec.CodecProvider.Companion.register
 import net.fabricmc.api.ModInitializer
 import net.minecraft.core.Holder

@@ -19,7 +19,7 @@ repositories {
 }
 
 
-val modVersion = "0.5.0"
+val modVersion = "0.5.1"
 val releaseVersion = "${modVersion}+${libs.versions.minecraft.get()}"
 version = releaseVersion
 group = "me.senseiwells"
@@ -68,7 +68,7 @@ tasks {
         file = jar.get().archiveFile
         changelog.set(
             """
-            - Update to 26.2
+            - Update dependencies
             """.trimIndent()
         )
         type = STABLE
