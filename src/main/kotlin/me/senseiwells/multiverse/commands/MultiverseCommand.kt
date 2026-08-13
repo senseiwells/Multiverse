@@ -137,6 +137,10 @@ object MultiverseCommand: CommandTree<CommandSourceStack> {
                     }
                 }
             }
+            literal("list") {
+                requiresPermission(multiverse("commands.multiverse.list"), true)
+                executes(::listCustomDimensions)
+            }
         }
     }
 
@@ -299,6 +303,13 @@ object MultiverseCommand: CommandTree<CommandSourceStack> {
         val location = level.asLocation(position, rotation)
         context.source.entityOrException.teleportTo(location)
         return context.source.success("Successfully teleported to ${level.dimension().identifier()}")
+    }
+
+    private fun listCustomDimensions(context: CommandContext<CommandSourceStack>) {
+        val server = context.source.server
+        val levels = server.allLevels.filterIsInstance<CustomLevel>()
+            .joinToComponent { level -> Component.literal(level.dimension().toIdString()) }
+        context.source.sendSystemMessage(Component { empty() + literal("Current multiverse dimensions:\n").lime() + levels })
     }
 
     private fun suggestCustomDimensions(
