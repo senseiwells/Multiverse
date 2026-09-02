@@ -49,14 +49,16 @@ object Multiverse: ModInitializer {
         val biomes = event.lookupOrThrow(Registries.BIOME)
         val plains = FlatLevelGeneratorSettings.getDefaultBiome(biomes)
 
-        event.register(
-            multiverse("void"),
-            LevelStem(overworld, this.createSingleLayerGenerator(Blocks.AIR, plains))
+        val voidGenerator = this.createSingleLayerGenerator(Blocks.AIR, plains)
+        event.register(multiverse("void"), LevelStem(overworld, voidGenerator))
+
+        val whiteGlassGenerator = this.createSingleLayerGenerator(Blocks.STAINED_GLASS.white, plains)
+        event.register(multiverse("white_glass"), LevelStem(overworld, whiteGlassGenerator))
+
+        val flatGenerator = this.createLayeredGenerator(
+            plains, Blocks.BEDROCK to 1, Blocks.DIRT to 2, Blocks.GRASS_BLOCK to 1
         )
-        event.register(
-            multiverse("white_glass"),
-            LevelStem(overworld, this.createSingleLayerGenerator(Blocks.STAINED_GLASS.white, plains))
-        )
+        event.register(multiverse("flat"), LevelStem(overworld, flatGenerator))
 
         // Copy stems from the vanilla registry
         val stems = event.lookupOrThrow(Registries.LEVEL_STEM) as HolderLookup
@@ -65,10 +67,16 @@ object Multiverse: ModInitializer {
         }
     }
 
-    private fun createSingleLayerGenerator(block: Block, biome: Holder<Biome>): FlatLevelSource {
+    private fun createLayeredGenerator(biome: Holder<Biome>, vararg layers: Pair<Block, Int>): FlatLevelSource {
         val settings = FlatLevelGeneratorSettings(Optional.empty(), biome, listOf())
-        settings.layersInfo.add(FlatLayerInfo(1, block))
+        for ((block, height) in layers) {
+            settings.layersInfo.add(FlatLayerInfo(height, block))
+        }
         settings.updateLayers()
         return FlatLevelSource(settings)
+    }
+
+    private fun createSingleLayerGenerator(block: Block, biome: Holder<Biome>): FlatLevelSource {
+        return this.createLayeredGenerator(biome, block to 1)
     }
 }

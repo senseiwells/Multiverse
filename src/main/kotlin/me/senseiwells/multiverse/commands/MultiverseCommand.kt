@@ -69,13 +69,16 @@ object MultiverseCommand: CommandTree<CommandSourceStack> {
                 literal("from") {
                     argument("stem", RegistryElementArgument.element(MultiverseRegistries.LEVEL_STEM)) {
                         argument("dimension", IdentifierArgument.id()) {
-                            executes { createStemmedDimension(it, 0, hasCustomGamerules = false, hasCustomTickManager = false) }
+                            executes { createStemmedDimension(it, 0, hasCustomGamerules = false, hasCustomTickManager = false, hasStructures = true) }
                             argument("seed", SeedArgument.seed()) {
-                                executes { createStemmedDimension(it, hasCustomGamerules = false, hasCustomTickManager = false) }
+                                executes { createStemmedDimension(it, hasCustomGamerules = false, hasCustomTickManager = false, hasStructures = true) }
                                 argument("has-custom-gamerules", BoolArgumentType.bool()) {
-                                    executes { createStemmedDimension(it, hasCustomTickManager = false) }
+                                    executes { createStemmedDimension(it, hasCustomTickManager = false, hasStructures = true) }
                                     argument("has-custom-tickrate", BoolArgumentType.bool()) {
-                                        executes(::createStemmedDimension)
+                                        executes { createStemmedDimension(it, hasStructures = true ) }
+                                        argument("has-structures", BoolArgumentType.bool()) {
+                                            executes(::createStemmedDimension)
+                                        }
                                     }
                                 }
                             }
@@ -141,7 +144,8 @@ object MultiverseCommand: CommandTree<CommandSourceStack> {
         context: CommandContext<CommandSourceStack>,
         seed: Long = SeedArgument.getSeed(context, "seed"),
         hasCustomGamerules: Boolean = BoolArgumentType.getBool(context, "has-custom-gamerules"),
-        hasCustomTickManager: Boolean = BoolArgumentType.getBool(context, "has-custom-tickrate")
+        hasCustomTickManager: Boolean = BoolArgumentType.getBool(context, "has-custom-tickrate"),
+        hasStructures: Boolean = BoolArgumentType.getBool(context, "has-structures")
     ): Int {
         val server = context.source.server
         val stem = this.getStemHolder(context, "stem")
@@ -155,7 +159,7 @@ object MultiverseCommand: CommandTree<CommandSourceStack> {
             levelStem(stem)
             persistence(LevelPersistence.Persistent)
             seed(seed)
-            generateStructures(true)
+            generateStructures(hasStructures)
             if (stem.value().type.value().defaultClock.isPresent) {
                 clockState()
             }
@@ -172,7 +176,7 @@ object MultiverseCommand: CommandTree<CommandSourceStack> {
         val id = dimension.toIdString()
         val message = Component {
             literal("Successfully created custom dimension $id") + nl +
-                literal("[Click to teleport]").suggestCommand("/multiverse teleport $id ~ ~ ~").yellow()
+                    literal("[Click to teleport]").suggestCommand("/multiverse teleport $id ~ ~ ~").yellow()
         }
         return context.source.success(message)
     }
@@ -256,7 +260,7 @@ object MultiverseCommand: CommandTree<CommandSourceStack> {
         val id = destination.toIdString()
         val message = Component {
             literal("Successfully cloned dimension ${level.dimension().toIdString()} into $id") + nl +
-                literal("[Click to teleport]").suggestCommand("/multiverse teleport $id ~ ~ ~").yellow()
+                    literal("[Click to teleport]").suggestCommand("/multiverse teleport $id ~ ~ ~").yellow()
         }
         return context.source.success(message)
     }
@@ -274,8 +278,8 @@ object MultiverseCommand: CommandTree<CommandSourceStack> {
         if (!forced) {
             val message = Component {
                 literal("Are you sure you want to delete this dimension? This action ") +
-                    literal("cannot").italicize().red() + literal(" be undone") + nl +
-                    literal("[Click to confirm deletion]").suggestCommand("/multiverse delete ${dimension.toIdString()} force").yellow()
+                        literal("cannot").italicize().red() + literal(" be undone") + nl +
+                        literal("[Click to confirm deletion]").suggestCommand("/multiverse delete ${dimension.toIdString()} force").yellow()
             }
             return context.source.success(message)
         }
