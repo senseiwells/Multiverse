@@ -53,8 +53,9 @@ which you can find listed on the [Minecraft wiki](https://minecraft.wiki/w/Dimen
 By default, vanilla has 3 types: `minecraft:overworld`, `minecraft:the_nether`, and 
 `minecraft:the_end`.
 
-Multiverse adds 2 types: `multiverse:void` and `multiverse:white_glass`, generating a
-void world and a flat world with one layer of white glass respectively.
+Multiverse adds 3 types: `multiverse:void`, `multiverse:white_glass`, and `multiverse:flat`,
+generating a void world, a flat world with one layer of white glass, and a "default"
+vanilla flat world (bedrock, dirt, grass) respectively.
 
 You can also define your own dimension types for more control, see [the defining 
 custom dimension types section](#defining-custom-dimension-types).
