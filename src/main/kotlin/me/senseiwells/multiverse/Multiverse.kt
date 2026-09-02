@@ -53,10 +53,23 @@ object Multiverse: ModInitializer {
             multiverse("void"),
             LevelStem(overworld, this.createSingleLayerGenerator(Blocks.AIR, plains))
         )
+
         event.register(
             multiverse("white_glass"),
             LevelStem(overworld, this.createSingleLayerGenerator(Blocks.STAINED_GLASS.white, plains))
         )
+
+        val layers = ArrayList<Pair<Int, Block>>(3);
+        layers.add(Pair(1, Blocks.BEDROCK))
+        layers.add(Pair(2, Blocks.DIRT))
+        layers.add(Pair(1, Blocks.GRASS_BLOCK))
+
+        event.register(
+            multiverse("flat"),
+            LevelStem(overworld, this.createLayeredGenerator(layers, plains))
+        )
+
+        layers.clear()
 
         // Copy stems from the vanilla registry
         val stems = event.lookupOrThrow(Registries.LEVEL_STEM) as HolderLookup
@@ -65,10 +78,24 @@ object Multiverse: ModInitializer {
         }
     }
 
-    private fun createSingleLayerGenerator(block: Block, biome: Holder<Biome>): FlatLevelSource {
+    private fun createLayeredGenerator(blocks: ArrayList<Pair<Int, Block>>, biome: Holder<Biome>): FlatLevelSource {
         val settings = FlatLevelGeneratorSettings(Optional.empty(), biome, listOf())
-        settings.layersInfo.add(FlatLayerInfo(1, block))
+        for (i in blocks.indices) {
+            val block = blocks[i];
+            settings.layersInfo.add(FlatLayerInfo(block.first, block.second))
+        }
         settings.updateLayers()
         return FlatLevelSource(settings)
+    }
+
+    private fun createMultipleLayerGenerator(block: Block, biome: Holder<Biome>, height: Int): FlatLevelSource {
+        val settings = FlatLevelGeneratorSettings(Optional.empty(), biome, listOf())
+        settings.layersInfo.add(FlatLayerInfo(height, block))
+        settings.updateLayers()
+        return FlatLevelSource(settings)
+    }
+
+    private fun createSingleLayerGenerator(block: Block, biome: Holder<Biome>): FlatLevelSource {
+        return createMultipleLayerGenerator(block, biome, 1)
     }
 }
