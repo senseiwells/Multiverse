@@ -35,7 +35,7 @@ Let's first discuss how to create a custom dimension.
 To create a custom dimension we will use the `create` subcommand.
 There are 2 branches from the `create` subcommand:
 ```mcfunction
-/multiverse create from <dimension-type> <dimension-id> <seed?> <has-custom-gamerules?> <has-custom-tickrate?>
+/multiverse create from <dimension-type> <dimension-id> <seed?> <has-custom-gamerules?> <has-custom-tickrate?> <has-structures?>
 /multiverse create vanilla <overworld> <nether> <end> <seed?>
 ```
 In the first, `from`, we can specify a pre-defined dimension type, give our dimension a
