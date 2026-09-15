@@ -35,13 +35,13 @@ public class WorldLoaderMixin {
     )
     private static RegistryAccess.Frozen loadMultiverseRegistries(
         RegistryAccess.Frozen vanillaStemRegistries,
-        @Local(name = "resources") CloseableResourceManager manager,
+        @Local(name = "resources") CloseableResourceManager resources,
         @Local(name = "dimensionContextProvider") HolderLookup.Provider dimensionContextProvider
     ) {
         List<HolderLookup.RegistryLookup<?>> lookup = Stream.concat(
             dimensionContextProvider.listRegistries(), vanillaStemRegistries.listRegistries()
         ).toList();
-        RegistryAccess.Frozen multiverseStemRegistries = RegistryDataLoader.load(manager, lookup, List.of(
+        RegistryAccess.Frozen multiverseStemRegistries = RegistryDataLoader.load(resources, lookup, List.of(
             new RegistryDataLoader.RegistryData<>(MultiverseRegistries.LEVEL_STEM, LevelStem.CODEC, RegistryValidator.none())
         ), Runnable::run).join();
         return new RegistryAccess.ImmutableRegistryAccess(

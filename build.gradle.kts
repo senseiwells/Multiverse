@@ -19,7 +19,7 @@ repositories {
 }
 
 
-val modVersion = "0.5.2"
+val modVersion = "0.6.0"
 val releaseVersion = "${modVersion}+${libs.versions.minecraft.get()}"
 version = releaseVersion
 group = "me.senseiwells"
@@ -68,9 +68,7 @@ tasks {
         file = jar.get().archiveFile
         changelog.set(
             """
-            - Added the `/multiverse list` command to list all multiverse dimensions
-            - Added <has-structures> command argument to `/multiverse create` to optionally disable structure generation (thanks thedirtybubble) 
-            - Added `multiverse:flat` dimension type which mirrors the "default" vanilla flat dimension (thanks thedirtybubble)
+            - Update to 26.3
             """.trimIndent()
         )
         type = STABLE
