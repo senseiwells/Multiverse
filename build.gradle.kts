@@ -7,13 +7,13 @@ plugins {
     kotlin("plugin.serialization").version(jvmVersion)
     alias(libs.plugins.fabric.loom)
     alias(libs.plugins.mod.publish)
+    alias(libs.plugins.joystick)
     `maven-publish`
     java
 }
 
 repositories {
     mavenLocal()
-    maven("https://maven.supersanta.me/snapshots")
     maven("https://maven.parchmentmc.org/")
     mavenCentral()
 }
@@ -30,9 +30,11 @@ dependencies {
     implementation(libs.fabric.loader)
     implementation(libs.fabric.api)
     implementation(libs.fabric.kotlin)
+}
 
-    implementation(libs.bundles.arcade)
-    include(libs.bundles.arcade)
+arcade {
+    version = libs.versions.arcade
+    modules("dimensions", "commands", "events-server")
 }
 
 java {
